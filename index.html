@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Task Manager | Routine Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: var(--gray-900);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: white;
+            border-right: 1px solid var(--gray-200);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--gray-900);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .nav-item:hover {
+            background-color: var(--gray-100);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        .nav-item i {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-section {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background-color: var(--gray-100);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info h4 {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .user-info p {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .date-display {
+            padding: 0.5rem 1rem;
+            background-color: var(--gray-200);
+            border-radius: 24px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Dashboard Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: var(--gray-400);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 1.625rem;
+            font-weight: 700;
+        }
+
+        /* Task Section */
+        .task-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .panel {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Task Form */
+        .task-form {
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .task-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 6px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray-300);
+        }
+
+        /* Task List */
+        .task-list {
+            list-style: none;
+        }
+
+        .task-item {
+            padding: 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover {
+            border-color: var(--gray-300);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .task-title.completed {
+            text-decoration: line-through;
+            color: var(--gray-400);
+        }
+
+        .task-time {
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .task-description {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .task-action-btn {
+            background: none;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .task-action-btn:hover {
+            background-color: var(--gray-200);
+        }
+
+        .task-action-btn.danger:hover {
+            background-color: #fee2e2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--gray-400);
+        }
+
+        /* Category Tags */
+        .category-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .category-work {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .category-personal {
+            background-color: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .category-health {
+            background-color: #f0fdf4;
+            color: #15803d;
+        }
+
+        .category-study {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Calendar Section */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .month-current {
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .month-nav-btn {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .month-nav-btn:hover {
+            background-color: var(--gray-200);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--gray-400);
+            padding: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-day:hover {
+            background-color: var(--gray-100);
+        }
+
+        .calendar-day.current-month {
+            background-color: white;
+            border: 1px solid var(--gray-200);
+        }
+
+        .calendar-day.other-month {
+            background-color: var(--gray-100);
+            color: var(--gray-400);
+        }
+
+        .calendar-day.today {
+            background-color: var(--primary-light);
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day-number {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .calendar-day-events {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .calendar-event {
+            width: 100%;
+            height: 4px;
+            border-radius: 999px;
+            background-color: var(--primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .task-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            .time-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Custom checkbox */
+        .custom-checkbox {
+            position: relative;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: white;
+            border: 2px solid var(--gray-300);
+            border-radius: 4px;
+        }
+
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .custom-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .custom-checkbox .checkmark:after {
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">T</div>
+                <div class="logo-text">TaskFlow</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item">
+                    <i>📅</i>
+                    <span>Calendar</span>
+                </div>
+                <div class="nav-item">
+                    <i>✅</i>
+                    <span>Tasks</span>
+                </div>
+                <div class="nav-item">
+                    <i>⏱️</i>
+                    <span>Focus Mode</span>
+                </div>
+                <div class="nav-item">
+                    <i>📈</i>
+                    <span>Analytics</span>
+                </div>
+            </nav>
+            <div class="user-section">
+                <div class="avatar">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f6f38c55-76cd-41c5-9ad2-4ebd5016b516.png" alt="User profile image - professional headshot of a 30-year-old male with short brown hair and business casual attire" />
+                </div>
+                <div class="user-info">
+                    <h4>John Doe</h4>
+                    <p>john@example.com</p>
+                </div>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <h1>Daily Routine</h1>
+                <div class="date-display">
+                    <span id="current-date">Monday, October 30, 2023</span>
+                </div>
+            </header>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Today's Tasks</h3>
+                    <p class="value" id="tasks-today">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed</h3>
+                    <p class="value" id="tasks-completed">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Productivity</h3>
+                    <p class="value" id="productivity-score">0%</p>
+                </div>
+            </div>
+
+            <div class="task-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>Tasks</h2>
+                        <button class="btn btn-primary" id="add-task-btn">
+                            + Add Task
+                        </button>
+                    </div>
+
+                    <form id="task-form" class="task-form">
+                        <div class="form-group">
+                            <label for="task-title">Title</label>
+                            <input type="text" id="task-title" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-description">Description</label>
+                            <textarea id="task-description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <div class="time-inputs">
+                                <div>
+                                    <label for="task-start">Start</label>
+                                    <input type="time" id="task-start" class="form-control" required>
+                                </div>
+                                <div>
+                                    <label for="task-end">End</label>
+                                    <input type="time" id="task-end" class="form-control" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-category">Category</label>
+                            <select id="task-category" class="form-control">
+                                <option value="work">Work</option>
+                                <option value="personal">Personal</option>
+                                <option value="health">Health</option>
+                                <option value="study">Study</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancel-task-btn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+
+                    <ul class="task-list" id="task-list">
+                        <li class="empty-state">No tasks for today. Add your first task above!</li>
+                    </ul>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2>Calendar
